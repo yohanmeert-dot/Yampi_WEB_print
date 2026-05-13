@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Painel | Yampi Print</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div>
+    <h1>Yampi WEB Print</h1>
+    <span>Painel de Pedidos</span>
+  </div>
+
+  <div class="topbar-actions">
+    <button onclick="syncOrders()">Sincronizar Pedidos</button>
+    <a href="/logout" class="logout-btn">Sair</a>
+  </div>
+</header>
+
+<main class="container">
+
+  {% if orders %}
+
+    {% for order in orders %}
+
+      <div class="order-card">
+
+        <div class="order-header">
+          <h2>Pedido #{{ order.yampi_id }}</h2>
+          <span class="status">{{ order.order_status }}</span>
+        </div>
+
+        <div class="divider"></div>
+
+        <p><strong>Cliente:</strong><br>{{ order.customer_name }}</p>
+
+        <div class="divider"></div>
+
+        <p><strong>Telefone:</strong><br>{{ order.customer_phone }}</p>
+
+        <div class="divider"></div>
+
+        <p><strong>Email:</strong><br>{{ order.customer_email or "Não informado" }}</p>
+
+        <div class="divider"></div>
+
+        <p><strong>CPF:</strong><br>{{ order.customer_document or "Não informado" }}</p>
+
+        <div class="divider"></div>
+
+        <p><strong>Endereço:</strong><br>
+          <span style="white-space: pre-line;">{{ order.customer_address or "Não informado" }}</span>
+        </p>
+
+        <div class="divider"></div>
+
+        <p><strong>Itens do pedido:</strong></p>
+
+        {% if order.items_json %}
+          {% for item in order.items_json %}
+            <div class="item-box">
+              <strong>{{ item.quantity }}x {{ item.name }}</strong><br>
+              Valor: R$ {{ "%.2f"|format(item.price or 0) }}
+
+              {% if item.customizations %}
+                <br>
+                <strong>Detalhes:</strong>
+                <ul>
+                  {% for custom in item.customizations %}
+                    <li>{{ custom }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </div>
+          {% endfor %}
+        {% else %}
+          <p>Nenhum item encontrado.</p>
+        {% endif %}
+
+        <div class="divider"></div>
+
+        <p><strong>Taxa de entrega:</strong><br>R$ {{ "%.2f"|format(order.delivery_fee or 0) }}</p>
+
+        <p><strong>Total:</strong><br>R$ {{ "%.2f"|format(order.total or 0) }}</p>
+
+        <div class="divider"></div>
+
+        <label><strong>Forma de pagamento:</strong></label>
+        <select id="payment-{{ order.id }}">
+          <option value="">Selecione</option>
+          <option value="Pix">Pix</option>
+          <option value="Dinheiro">Dinheiro</option>
+          <option value="Débito">Débito</option>
+          <option value="Crédito">Crédito</option>
+          <option value="VR">VR</option>
+          <option value="Bônus Cred">Bônus Cred</option>
+          <option value="Ticket">Ticket</option>
+          <option value="Voucher">Voucher</option>
+          <option value="Assinada">Assinada</option>
+          <option value="{{ order.local_payment_method }}" selected>
+            {{ order.local_payment_method or "Selecionado atual" }}
+          </option>
+        </select>
+
+        <label><strong>Observações para impressão:</strong></label>
+        <textarea id="notes-{{ order.id }}" rows="4">{{ order.notes or "" }}</textarea>
+
+        <div class="order-actions">
+          <button onclick="saveOrderInfo({{ order.id }})">Salvar alterações</button>
+          <button onclick="printOrder({{ order.id }})">Imprimir</button>
+          <button onclick="markPreparing({{ order.id }})">Em preparo</button>
+          <button onclick="markFinished({{ order.id }})">Finalizado</button>
+        </div>
+
+      </div>
+
+    {% endfor %}
+
+  {% else %}
+
+    <div class="empty">
+      Nenhum pedido encontrado.
+    </div>
+
+  {% endif %}
+
+</main>
+
+<script src="/static/app.js"></script>
+
+</body>
+</html>

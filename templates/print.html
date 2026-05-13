@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Comanda #{{ order.yampi_id }}</title>
+
+  <style>
+    body {
+      font-family: monospace;
+      width: 58mm;
+      margin: 0 auto;
+      padding: 8px;
+      font-size: 13px;
+      color: black;
+    }
+
+    .center { text-align: center; }
+
+    h1 {
+      font-size: 17px;
+      margin: 0;
+    }
+
+    h2 {
+      font-size: 16px;
+      margin: 4px 0;
+    }
+
+    .sep {
+      border-top: 1px dashed black;
+      margin: 8px 0;
+    }
+
+    .title {
+      font-weight: bold;
+      font-size: 14px;
+      text-transform: uppercase;
+    }
+
+    .item {
+      margin-bottom: 8px;
+    }
+
+    .small {
+      font-size: 12px;
+    }
+
+    .big {
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border: 0;
+      background: black;
+      color: white;
+      margin-top: 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    @media print {
+      button { display: none; }
+
+      body {
+        margin: 0;
+        width: 58mm;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="center">
+    <h1>CANTINHO DO ALEMÃO</h1>
+    <div>COMANDA DE PEDIDO</div>
+    <h2>#{{ order.yampi_id }}</h2>
+  </div>
+
+  <div class="sep"></div>
+
+  <div class="title">Cliente</div>
+  <div>{{ order.customer_name or "Não informado" }}</div>
+
+  <div class="sep"></div>
+
+  <div class="title">Telefone</div>
+  <div>{{ order.customer_phone or "Não informado" }}</div>
+
+  <div class="sep"></div>
+
+  <div class="title">Email</div>
+  <div>{{ order.customer_email or "Não informado" }}</div>
+
+  <div class="sep"></div>
+
+  <div class="title">CPF</div>
+  <div>{{ order.customer_document or "Não informado" }}</div>
+
+  <div class="sep"></div>
+
+  <div class="title">Endereço</div>
+  <div style="white-space: pre-line;">
+    {{ order.customer_address or "Não informado" }}
+  </div>
+
+  <div class="sep"></div>
+
+  <div class="title">Itens do Pedido</div>
+
+  {% if order.items_json %}
+    {% for item in order.items_json %}
+      <div class="item">
+        <strong>{{ item.quantity }}x {{ item.name }}</strong><br>
+        Valor un.: R$ {{ "%.2f"|format(item.price or 0) }}
+
+        {% if item.customizations %}
+          <br>
+          <span class="small">Detalhes:</span>
+          {% for custom in item.customizations %}
+            <br>- {{ custom }}
+          {% endfor %}
+        {% endif %}
+      </div>
+      <div class="sep"></div>
+    {% endfor %}
+  {% else %}
+    <div>Nenhum item encontrado.</div>
+  {% endif %}
+
+  <div class="title">Pagamento</div>
+  <div>
+    {{ order.local_payment_method or order.payment_method or order.payment_status or "Não informado" }}
+  </div>
+
+  <div class="sep"></div>
+
+  {% if order.notes %}
+    <div class="title">Observações</div>
+    <div style="white-space: pre-line;">
+      {{ order.notes }}
+    </div>
+    <div class="sep"></div>
+  {% endif %}
+
+  <div class="title">Taxa de entrega</div>
+  <div>R$ {{ "%.2f"|format(order.delivery_fee or 0) }}</div>
+
+  <div class="sep"></div>
+
+  <div class="title">Total</div>
+  <div class="big">R$ {{ "%.2f"|format(order.total or 0) }}</div>
+
+  <div class="sep"></div>
+
+  <div class="center small">
+    {{ order.created_at.strftime('%d/%m/%Y %H:%M') if order.created_at else "" }}
+  </div>
+
+  <button onclick="window.print()">IMPRIMIR</button>
+<script>
+  const params = new URLSearchParams(window.location.search);
+
+  if (params.get("auto") === "1") {
+    window.onload = function () {
+      setTimeout(function () {
+        window.print();
+      }, 500);
+    };
+  }
+</script>
+<script>
+  const params = new URLSearchParams(window.location.search);
+
+  if (params.get("auto") === "1") {
+    const btn = document.querySelector("button");
+    if (btn) {
+      btn.style.display = "none";
+    }
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Login | Yampi Print</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="login-body">
+
+  <div class="login-card">
+    <h1>Yampi Print</h1>
+    <p>Entre para acessar o painel de pedidos</p>
+
+    {% if error %}
+      <div class="alert">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST">
+      <label>Usuário</label>
+      <input type="text" name="username" required>
+
+      <label>Senha</label>
+      <input type="password" name="password" required>
+
+      <button type="submit">Entrar</button>
+    </form>
+  </div>
+
+</body>
+</html>
